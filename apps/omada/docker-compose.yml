@@ -45,7 +45,7 @@ services:
       traefik.enable: true
       traefik.http.middlewares.omada-web-redirect.redirectscheme.scheme: https
       traefik.http.services.omada.loadbalancer.server.port: 8043
-      traefik.http.services.omada.loadbalancer.server.serversTransport: insecuretransport@file
+      traefik.http.services.omada.loadbalancer.serversTransport: insecuretransport@file
       # Web
       traefik.http.routers.omada-insecure.rule: Host(`${APP_DOMAIN}`)
       traefik.http.routers.omada-insecure.entrypoints: web

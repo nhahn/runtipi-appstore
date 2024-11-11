@@ -8,8 +8,8 @@
   "port": 8043,
   "id": "omada",
   "categories": ["network", "security"],
-  "description": "Adguard is the best way to get rid of annoying ads and online tracking and protect your computer from malware. Make your web surfing fast, safe and ad-free.",
-  "short_desc": "World's most advanced adblocker!",
+  "description": "Control your Omada setup with Runtipi",
+  "short_desc": "A software controller instance for TP-Link Omada's Setup",
   "author": "TP-Link",
   "source": "https://github.com/mbentley/docker-omada-controller",
   "requirements": {
