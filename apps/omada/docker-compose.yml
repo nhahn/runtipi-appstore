@@ -1,0 +1,69 @@
+version: "3.7"
+services:
+  omada:
+    image: mbentley/omada-controller:5.14
+    container_name: omada-controller
+    volumes:
+      - "${APP_DATA_DIR}/data/omada-data:/opt/tplink/EAPController/data"
+      - "${APP_DATA_DIR}/data/omada-logs:/opt/tplink/EAPController/logs"
+    restart: unless-stopped
+    networks:
+      - tipi_main_network
+    ports:
+      - ${NETWORK_INTERFACE:-0.0.0.0}:8078:8078
+      - ${NETWORK_INTERFACE:-0.0.0.0}:8043:8043
+      - ${NETWORK_INTERFACE:-0.0.0.0}:8843:8843
+      - ${NETWORK_INTERFACE:-0.0.0.0}:27001:27001/udp
+      - ${NETWORK_INTERFACE:-0.0.0.0}:29810:29810/udp
+      - ${NETWORK_INTERFACE:-0.0.0.0}:29811-29816:29811-29816
+    ulimits:
+      nofile:
+        soft: 4096
+        hard: 8192
+    environment:
+      - PUID=508
+      - PGID=508
+      - MANAGE_HTTP_PORT=8078
+      - MANAGE_HTTPS_PORT=8043
+      - PORTAL_HTTP_PORT=8078
+      - PORTAL_HTTPS_PORT=8843
+      - PORT_APP_DISCOVERY=27001
+      - PORT_ADOPT_V1=29812
+      - PORT_UPGRADE_V1=29813
+      - PORT_MANAGER_V1=29811
+      - PORT_MANAGER_V2=29814
+      - PORT_DISCOVERY=29810
+      - PORT_TRANSFER_V2=29815
+      - PORT_RTTY=29816
+      - SHOW_SERVER_LOGS=true
+      - SHOW_MONGODB_LOGS=false
+      - SSL_CERT_NAME=tls.crt
+      - SSL_KEY_NAME=tls.key
+      - TZ=Etc/UTC
+    labels:
+      # Main
+      traefik.enable: true
+      traefik.http.middlewares.omada-web-redirect.redirectscheme.scheme: https
+      traefik.http.services.omada.loadbalancer.server.port: 8043
+      traefik.http.services.omada.loadbalancer.server.serversTransport: insecuretransport@file
+      # Web
+      traefik.http.routers.omada-insecure.rule: Host(`${APP_DOMAIN}`)
+      traefik.http.routers.omada-insecure.entrypoints: web
+      traefik.http.routers.omada-insecure.service: omada
+      traefik.http.routers.omada-insecure.middlewares: omada-web-redirect
+      # Websecure
+      traefik.http.routers.omada.rule: Host(`${APP_DOMAIN}`)
+      traefik.http.routers.omada.entrypoints: websecure
+      traefik.http.routers.omada.service: omada
+      traefik.http.routers.omada.tls.certresolver: myresolver
+      # Local domain
+      traefik.http.routers.omada-local-insecure.rule: Host(`omada.${LOCAL_DOMAIN}`)
+      traefik.http.routers.omada-local-insecure.entrypoints: web
+      traefik.http.routers.omada-local-insecure.service: omada
+      traefik.http.routers.omada-local-insecure.middlewares: omada-web-redirect
+      # Local domain secure
+      traefik.http.routers.omada-local.rule: Host(`omada.${LOCAL_DOMAIN}`)
+      traefik.http.routers.omada-local.entrypoints: websecure
+      traefik.http.routers.omada-local.service: omada
+      traefik.http.routers.omada-local.tls: true
+      runtipi.managed: true

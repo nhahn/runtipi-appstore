@@ -1,0 +1,37 @@
+{
+  "$schema": "../compose-schema.json",
+  "services": [
+    {
+      "name": "omada",
+      "image": "mbentley/omada-controller:5.14",
+      "volumes": [
+        {
+          "hostPath": "${APP_DATA_DIR}/data/omada-data",
+          "containerPath": "/opt/tplink/EAPController/data"
+        },
+        {
+          "hostPath": "${APP_DATA_DIR}/data/omada-logs",
+          "containerPath": "/opt/tplink/EAPController/logs"
+        }
+      ],
+      "internalPort": 8043,
+      "isMain": true,
+      "addPorts": [
+        {
+          "hostPort": 53,
+          "containerPort": 53,
+          "tcp": true,
+          "udp": true,
+          "interface": "${NETWORK_INTERFACE:-0.0.0.0}"
+        },
+        {
+          "hostPort": 853,
+          "containerPort": 853,
+          "tcp": true,
+          "udp": true,
+          "interface": "${NETWORK_INTERFACE:-0.0.0.0}"
+        }
+      ]
+    }
+  ]
+}
